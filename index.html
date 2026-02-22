@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>বিরিয়ানি দিবে - PC/Laptop Version</title>
+    <!-- Font Awesome 5 -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <!-- Google Font for Bengali -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+
+        body {
+            background-color: #f0e5d5; /* lighter background for larger screens */
+            color: #2d2d2d;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Main container - now responsive for all screens */
+        .app-container {
+            width: 100%;
+            max-width: 1300px; /* much wider for PC */
+            background-color: #ffffff;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border-radius: 30px;
+            padding: 2rem;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        /* Two-column layout for PC */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        /* Left column - filters and list */
+        .left-column {
+            background-color: #fef9f2;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: inset 0 0 0 1px #f0e0cc;
+        }
+
+        /* Right column - map */
+        .right-column {
+            background-color: #fef9f2;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: inset 0 0 0 1px #f0e0cc;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 2rem;
+            color: #b45f2b;
+        }
+
+        .header-icons span {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .header-icons span:hover {
+            transform: scale(1.1);
+        }
+
+        .header-title h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #b45f2b;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0 #f0d5b0;
+            cursor: pointer;
+        }
+
+        .subhead-stats {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #fceae3;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            width: fit-content;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            font-size: 1.2rem;
+            border: 2px solid #e6c9a8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .subhead-stats:hover {
+            background-color: #f5d5c0;
+        }
+
+        .subhead-stats i {
+            color: #b45f2b;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #f3efe8;
+            border-radius: 60px;
+            padding: 0.6rem 1.5rem;
+            margin-bottom: 2rem;
+            border: 2px solid #dcc7aa;
+            width: 100%;
+        }
+
+        .search-bar i {
+            color: #9e7b56;
+            font-size: 1.4rem;
+            margin-right: 1rem;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 0.7rem 0;
+            font-size: 1.1rem;
+            outline: none;
+            color: #2d2d2d;
+        }
+
+        .search-bar input::placeholder {
+            color: #aa8c6f;
+        }
+
+        .search-bar .live-badge {
+            background-color: #e03a3a;
+            color: white;
+            padding: 0.4rem 1.5rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-left: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+        .search-bar .live-badge:hover {
+            background-color: #b02d2d;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .filter-chip {
+            background-color: #f3efe8;
+            border: 2px solid #d4b68a;
+            border-radius: 50px;
+            padding: 0.6rem 1.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #5a3e2b;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .filter-chip.active {
+            background-color: #b45f2b;
+            color: white;
+            border-color: #b45f2b;
+        }
+
+        .filter-chip:hover {
+            background-color: #e0d0bb;
+            transform: translateY(-2px);
+        }
+        .filter-chip.active:hover {
+            background-color: #9e4f1f;
+        }
+
+        .biryani-icon-large {
+            font-size: 2.2rem;
+            margin-right: 0.2rem;
+        }
+
+        /* Map container for PC */
+        .map-container {
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 3px solid #d4b68a;
+            margin-bottom: 1rem;
+        }
+        #map {
+            height: 450px; /* taller for PC */
+            width: 100%;
+            z-index: 1;
+        }
+
+        .location-status {
+            background-color: #e8f0fe;
+            padding: 0.8rem;
+            border-radius: 30px;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: #1e3d42;
+            border: 2px solid #b45f2b;
+        }
+
+        /* Manual add form */
+        .add-form-container {
+            background-color: #fae9d8;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 3px solid #b45f2b;
+            display: none;
+        }
+        .add-form-container h3 {
+            color: #b45f2b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #5a3e2b;
+            margin-bottom: 0.3rem;
+            font-size: 1rem;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #d4b68a;
+            border-radius: 12px;
+            font-size: 1rem;
+            background-color: white;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background-color: #b45f2b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #9e4f1f;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background-color: #e0d0bb;
+            color: #5a3e2b;
+        }
+        .btn-secondary:hover {
+            background-color: #d4b68a;
+            transform: translateY(-2px);
+        }
+        .btn-biryani {
+            background-color: #b45f2b;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 30px;
+        }
+        .btn-biryani:hover {
+            background-color: #9e4f1f;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0 1.5rem 0;
+        }
+
+        .section-header h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2d2d2d;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .section-header i {
+            color: #b45f2b;
+            font-size: 1.6rem;
+        }
+
+        .badge-district {
+            background-color: #f0d5b0;
+            padding: 0.4rem 1.5rem;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #5a3e2b;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid #d4b68a;
+        }
+        .badge-district:hover {
+            background-color: #e6c28b;
+        }
+
+        .mosque-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 0.8rem;
+        }
+
+        .mosque-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 2px dashed #e2d5c0;
+            padding-bottom: 1rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            background-color: #ffffff;
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .mosque-item:hover {
+            background-color: #fcf6ed;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .mosque-icon {
+            font-size: 3rem;
+            min-width: 3.5rem;
+            text-align: center;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .mosque-details {
+            flex: 1;
+        }
+
+        .mosque-name {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #1e3d42;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .donation-badge {
+            background-color: #2e7d32;
+            color: white;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+        }
+
+        .mosque-location {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.05rem;
+            color: #766b5c;
+            margin: 0.3rem 0;
+        }
+
+        .mosque-location i {
+            font-size: 0.9rem;
+            color: #b45f2b;
+        }
+
+        .distance-badge {
+            background-color: #e8f0fe;
+            border-radius: 30px;
+            padding: 0.2rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e3d42;
+            border: 2px solid #b45f2b;
+        }
+
+        .biryani-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+
+        .type-icon {
+            font-size: 1.5rem;
+        }
+
+        .none-biryani {
+            color: #9e2a2a;
+            background-color: #ffe1e1;
+            padding: 0.2rem 1.2rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 2px solid #e03a3a;
+        }
+
+        .footer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 3px solid #ecdbba;
+        }
+
+        .footer-icons {
+            display: flex;
+            gap: 2rem;
+            font-size: 2.2rem;
+            color: #b45f2b;
+        }
+
+        .footer-icons span {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .footer-icons span:hover {
+            transform: scale(1.2);
+        }
+
+        .footer-bd {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1e5631;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .footer-bd:hover {
+            transform: scale(1.1);
+        }
+
+        .banner-bg {
+            background-color: #fae9d8;
+            border-radius: 20px;
+            padding: 0.5rem 1.5rem;
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .animal-filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            font-size: 2.2rem;
+            margin-top: 1.5rem;
+            opacity: 0.9;
+            align-items: center;
+            background-color: #fae9d8;
+            padding: 1rem;
+            border-radius: 60px;
+        }
+        .animal-filter-bar span {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .animal-filter-bar span:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 5px #b45f2b);
+        }
+
+        .mosque-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .mosque-list::-webkit-scrollbar-track {
+            background: #f1e5d5;
+            border-radius: 10px;
+        }
+        .mosque-list::-webkit-scrollbar-thumb {
+            background: #b45f2b;
+            border-radius: 10px;
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1e3d42;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            display: none;
+            border: 2px solid #b45f2b;
+        }
+
+        .biryani-marker {
+            font-size: 2.2rem;
+            text-align: center;
+            line-height: 1;
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.3));
+        }
+        .user-marker {
+            font-size: 2.2rem;
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* Responsive for smaller screens */
+        @media (max-width: 900px) {
+            body { padding: 10px; }
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .app-container { padding: 1rem; }
+            .header-title h1 { font-size: 2rem; }
+            .header-icons { font-size: 1.6rem; }
+            .filter-chip { padding: 0.4rem 1rem; font-size: 0.95rem; }
+        }
+
+        @media (min-width: 1400px) {
+            .app-container { max-width: 1600px; }
+            .header-title h1 { font-size: 3rem; }
+            .filter-chip { font-size: 1.2rem; }
+        }
+    </style>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- header -->
+        <div class="header-row">
+            <div class="header-icons">
+                <span onclick="showToast('🍛 বিরিয়ানি আইকন')">🍛</span>
+                <span onclick="toggleAddForm()">➕</span>
+                <span onclick="removeLastMosque()">−</span>
+                <span onclick="showToast('🍛 বিরিয়ানি আইকন')">🍛</span>
+            </div>
+            <div class="header-title">
+                <h1 onclick="showToast('বিরিয়ানি দিবে')">বিরিয়ানি দিবে</h1>
+            </div>
+        </div>
+
+        <!-- stats badge -->
+        <div class="subhead-stats" onclick="showToast('৬৪ জেলা | ৫০০+ মসজিদ')">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>৬৪ জেলা | ৫০০+ মসজিদ</span>
+        </div>
+
+        <!-- search + live -->
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="🔍 মসজিদ বা এলাকা খুঁজুন..." onkeyup="filterMosques()">
+            <span class="live-badge" onclick="toggleLiveMap()">লাইভ 🗺️</span>
+        </div>
+
+        <!-- Main Grid: Left Column (Filters + List) and Right Column (Map) -->
+        <div class="main-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- filter chips -->
+                <div class="filter-row" id="filterRow">
+                    <div class="filter-chip active" data-filter="all" onclick="setActiveFilter(this); filterByDivision('all')"><i class="fas fa-flag"></i> 🇧🇩 সব</div>
+                    <div class="filter-chip" data-filter="dhaka" onclick="setActiveFilter(this); filterByDivision('ঢাকা')">ঢাকা</div>
+                    <div class="filter-chip" data-filter="ctg" onclick="setActiveFilter(this); filterByDivision('চট্টগ্রাম')">চট্টগ্রাম</div>
+                    <div class="filter-chip" data-filter="rajshahi" onclick="setActiveFilter(this); filterByDivision('রাজশাহী')">রাজশাহী</div>
+                    <div class="filter-chip" data-filter="khulna" onclick="setActiveFilter(this); filterByDivision('খুলনা')">খুলনা</div>
+                    <div class="filter-chip" data-filter="sylhet" onclick="setActiveFilter(this); filterByDivision('সিলেট')">সিলেট</div>
+                    <div class="filter-chip" data-filter="barisal" onclick="setActiveFilter(this); filterByDivision('বরিশাল')">বরিশাল</div>
+                    <div class="filter-chip" data-filter="rangpur" onclick="setActiveFilter(this); filterByDivision('রংপুর')">রংপুর</div>
+                    <div class="filter-chip" data-filter="biryani" onclick="setActiveFilter(this); filterByBiryaniType()"><span class="biryani-icon-large">🍛</span> বিরিয়ানি</div>
+                    <div class="filter-chip" onclick="toggleAddForm()"><i class="fas fa-plus-circle"></i> যোগ করুন</div>
+                    <div class="filter-chip" onclick="showToast('🇧🇩 বাংলাদেশ')">🇧🇩</div>
+                </div>
+
+                <!-- Manual Add Form -->
+                <div id="addFormContainer" class="add-form-container">
+                    <h3><i class="fas fa-plus-circle"></i> নতুন বিরিয়ানি দিবে 🍛</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>মসজিদের নাম / স্থানের নাম</label>
+                            <input type="text" id="newName" placeholder="যেমন: চন্দ্রপাড়া মসজিদ">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>ঠিকানা (বিস্তারিত)</label>
+                            <textarea id="newAddress" placeholder="যেমন: মাধবপাশা, বাবুগঞ্জ, বরিশাল"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>বিভাগ</label>
+                            <select id="newDivision">
+                                <option value="ঢাকা">ঢাকা</option>
+                                <option value="চট্টগ্রাম">চট্টগ্রাম</option>
+                                <option value="রাজশাহী">রাজশাহী</option>
+                                <option value="খুলনা">খুলনা</option>
+                                <option value="সিলেট">সিলেট</option>
+                                <option value="বরিশাল">বরিশাল</option>
+                                <option value="রংপুর">রংপুর</option>
+                                <option value="ময়মনসিংহ">ময়মনসিংহ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>জেলা</label>
+                            <input type="text" id="newDistrict" placeholder="যেমন: বরিশাল">
+                        </div>
+                        <div class="form-group">
+                            <label>থানা</label>
+                            <input type="text" id="newThana" placeholder="যেমন: বাবুগঞ্জ">
+                        </div>
+                        <div class="form-group">
+                            <label>বিরিয়ানির ধরণ</label>
+                            <select id="newType">
+                                <option value="🐓 মুরগির বিরিয়ানি">🐓 মুরগির বিরিয়ানি</option>
+                                <option value="🐄 গরুর বিরিয়ানি">🐄 গরুর বিরিয়ানি</option>
+                                <option value="🐐 খাসির বিরিয়ানি">🐐 খাসির বিরিয়ানি</option>
+                                <option value="🥣 নেই">🥣 নেই</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>অক্ষাংশ (ল্যাট)</label>
+                            <input type="number" step="0.0001" id="newLat" placeholder="যেমন: 23.780">
+                        </div>
+                        <div class="form-group">
+                            <label>দ্রাঘিমা (লং)</label>
+                            <input type="number" step="0.0001" id="newLng" placeholder="যেমন: 90.380">
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <button class="btn btn-biryani" onclick="getCurrentLocationForForm()">
+                            <i class="fas fa-map-marker-alt"></i> আমার বর্তমান লোকেশন ব্যবহার করুন
+                        </button>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="toggleAddForm()">বাতিল</button>
+                        <button class="btn btn-primary" onclick="addManualMosque()">সেভ করুন 🍛</button>
+                    </div>
+                </div>
+
+                <!-- section header -->
+                <div class="section-header">
+                    <h3 onclick="showToast('মসজিদ সমূহ')"><i class="fas fa-mosque"></i> মসজিদ সমূহ</h3>
+                    <div class="badge-district" onclick="showToast('২২ জেলা · ৩২ বিরিয়ানি')" id="districtBadge">২২ জেলা · ৩২ বিরিয়ানি ▼</div>
+                </div>
+
+                <!-- mosque list container -->
+                <div class="mosque-list" id="mosqueList"></div>
+            </div>
+
+            <!-- Right Column - Map -->
+            <div class="right-column">
+                <div id="mapContainer" class="map-container">
+                    <div id="locationStatus" class="location-status">
+                        <i class="fas fa-circle"></i> ম্যাপ দেখতে লাইভ বাটন চাপুন
+                    </div>
+                    <div id="map"></div>
+                </div>
+
+                <!-- emoji banner with biryani -->
+                <div class="banner-bg">
+                    <span>🍛</span><span>🍛</span><span>🥣</span><span>🍛</span><span>🍛</span><span>🥣</span>
+                    <span>🍛</span><span>🍛</span><span>🥣</span><span>🍛</span><span>🍛</span><span>🥣</span><span>🍛</span>
+                    <span style="margin-left: 10px; font-size: 2.2rem;">🍛</span>
+                </div>
+
+                <!-- animal icons filter with biryani emoji -->
+                <div class="animal-filter-bar">
+                    <span onclick="filterByMeat('🐓')" title="মুরগির বিরিয়ানি">🐓</span>
+                    <span onclick="filterByMeat('🐄')" title="গরুর বিরিয়ানি">🐄</span>
+                    <span onclick="filterByMeat('🐐')" title="খাসির বিরিয়ানি">🐐</span>
+                    <span onclick="filterByMeat('🥣')" title="নেই">🥣</span>
+                    <span style="font-size: 2.5rem; color: #b45f2b;" title="বিরিয়ানি">🍛</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- footer -->
+        <div class="footer-actions">
+            <div class="footer-icons">
+                <span onclick="showToast('🍛 বিরিয়ানি আইকন')">🍛</span>
+                <span onclick="toggleAddForm()">➕</span>
+                <span onclick="removeLastMosque()">−</span>
+                <span onclick="showToast('🍛 বিরিয়ানি আইকন')">🍛</span>
+            </div>
+            <div class="footer-bd" onclick="showToast('🇧🇩 বাংলাদেশ')">
+                🇧🇩
+            </div>
+        </div>
+    </div>
+
+    <!-- toast -->
+    <div id="toast" class="toast-message"></div>
+
+    <script>
+        // ---------- mosque dataset ----------
+        let mosqueData = [
+            { name: "চন্দ্রপাড়া মসজিদ", location: "মাধবপাশা, বাবুগঞ্জ, বরিশাল", thana: "বাবুগঞ্জ", district: "বরিশাল", type: "🐓 মুরগির বিরিয়ানি", typeIcon: "🐓", division: "বরিশাল", lat: 22.832, lng: 90.326, manual: false },
+            { name: "কুসুম্বা মসজিদ", location: "কুসুম্বা, মান্দা, নওগাঁ", thana: "মান্দা", district: "নওগাঁ", type: "🐓 মুরগির বিরিয়ানি", typeIcon: "🐓", division: "রাজশাহী", lat: 24.790, lng: 88.668, manual: false },
+            { name: "বাংলাদেশ গ্যাস ফিল্ড জামে মসজিদ", location: "মেধা, ব্রাহ্মণবাড়িয়া সদর, ব্রাহ্মণবাড়িয়া", thana: "ব্রাহ্মণবাড়িয়া সদর", district: "ব্রাহ্মণবাড়িয়া", type: "🐄 গরুর বিরিয়ানি", typeIcon: "🐄", division: "চট্টগ্রাম", lat: 23.650, lng: 91.100, manual: false },
+            { name: "বাংলাদেশ বেতার মসজিদ", location: "আগারগাঁও, শেরেবাংলা নগর, ঢাকা", thana: "শেরেবাংলা নগর", district: "ঢাকা", type: "🐐 খাসির বিরিয়ানি", typeIcon: "🐐", division: "ঢাকা", lat: 23.780, lng: 90.380, manual: false },
+            { name: "শাহ সুজা মসজিদ", location: "মোগলটুলী, কুমিল্লা সদর, কুমিল্লা", thana: "কুমিল্লা সদর", district: "কুমিল্লা", type: "🐄 গরুর বিরিয়ানি", typeIcon: "🐄", division: "চট্টগ্রাম", lat: 23.457, lng: 91.185, manual: false },
+            { name: "চট্টগ্রাম কেন্দ্রীয় জামে মসজিদ", location: "আন্দরকিল্লা, চট্টগ্রাম", thana: "আন্দরকিল্লা", district: "চট্টগ্রাম", type: "🐄 গরুর বিরিয়ানি", typeIcon: "🐄", division: "চট্টগ্রাম", lat: 22.335, lng: 91.832, manual: false },
+            { name: "রাজশাহী বড় মসজিদ", location: "বোয়ালিয়া, রাজশাহী", thana: "বোয়ালিয়া", district: "রাজশাহী", type: "🐐 খাসির বিরিয়ানি", typeIcon: "🐐", division: "রাজশাহী", lat: 24.372, lng: 88.596, manual: false },
+            { name: "সিলেট কেন্দ্রীয় মসজিদ", location: "সিলেট সদর, সিলেট", thana: "সিলেট সদর", district: "সিলেট", type: "🐐 খাসির বিরিয়ানি", typeIcon: "🐐", division: "সিলেট", lat: 24.905, lng: 91.873, manual: false },
+            { name: "গাজীপুর কেন্দ্রীয় জামে মসজিদ", location: "গাজীপুর সদর, গাজীপুর", thana: "গাজীপুর সদর", district: "গাজীপুর", type: "🥣 নেই", typeIcon: "🥣", division: "ঢাকা", lat: 23.992, lng: 90.422, manual: false },
+            { name: "কক্সবাজার সমুদ্র সৈকত জামে মসজিদ", location: "কক্সবাজার সদর, কক্সবাজার", thana: "কক্সবাজার সদর", district: "কক্সবাজার", type: "🐓 মুরগির বিরিয়ানি", typeIcon: "🐓", division: "চট্টগ্রাম", lat: 21.427, lng: 91.985, manual: false },
+            { name: "রংপুর কেন্দ্রীয় মসজিদ", location: "রংপুর সদর, রংপুর", thana: "রংপুর সদর", district: "রংপুর", type: "🐓 মুরগির বিরিয়ানি", typeIcon: "🐓", division: "রংপুর", lat: 25.755, lng: 89.247, manual: false },
+            { name: "খুলনা বড় মসজিদ", location: "খুলনা সদর, খুলনা", thana: "খুলনা সদর", district: "খুলনা", type: "🐐 খাসির বিরিয়ানি", typeIcon: "🐐", division: "খুলনা", lat: 22.845, lng: 89.542, manual: false },
+            { name: "ময়মনসিংহ কেন্দ্রীয় মসজিদ", location: "ময়মনসিংহ সদর, ময়মনসিংহ", thana: "ময়মনসিংহ সদর", district: "ময়মনসিংহ", type: "🥣 নেই", typeIcon: "🥣", division: "ময়মনসিংহ", lat: 24.753, lng: 90.403, manual: false },
+            { name: "বগুড়া কেন্দ্রীয় জামে মসজিদ", location: "বগুড়া সদর, বগুড়া", thana: "বগুড়া সদর", district: "বগুড়া", type: "🐄 গরুর বিরিয়ানি", typeIcon: "🐄", division: "রাজশাহী", lat: 24.851, lng: 89.371, manual: false },
+            { name: "যশোর কেন্দ্রীয় মসজিদ", location: "যশোর সদর, যশোর", thana: "যশোর সদর", district: "যশোর", type: "🐐 খাসির বিরিয়ানি", typeIcon: "🐐", division: "খুলনা", lat: 23.168, lng: 89.204, manual: false },
+            { name: "দিনাজপুর বড় মসজিদ", location: "দিনাজপুর সদর, দিনাজপুর", thana: "দিনাজপুর সদর", district: "দিনাজপুর", type: "🐄 গরুর বিরিয়ানি", typeIcon: "🐄", division: "রংপুর", lat: 25.631, lng: 88.635, manual: false },
+            { name: "পটুয়াখালী কেন্দ্রীয় মসজিদ", location: "পটুয়াখালী সদর, পটুয়াখালী", thana: "পটুয়াখালী সদর", district: "পটুয়াখালী", type: "🥣 নেই", typeIcon: "🥣", division: "বরিশাল", lat: 22.359, lng: 90.330, manual: false },
+            { name: "ফেনী কেন্দ্রীয় জামে মসজিদ", location: "ফেনী সদর, ফেনী", thana: "ফেনী সদর", district: "ফেনী", type: "🐐 খাসির বিরিয়ানি", typeIcon: "🐐", division: "চট্টগ্রাম", lat: 23.019, lng: 91.400, manual: false },
+            { name: "কুষ্টিয়া বড় মসজিদ", location: "কুষ্টিয়া সদর, কুষ্টিয়া", thana: "কুষ্টিয়া সদর", district: "কুষ্টিয়া", type: "🐐 খাসির বিরিয়ানি", typeIcon: "🐐", division: "খুলনা", lat: 23.902, lng: 89.121, manual: false },
+            { name: "নোয়াখালী কেন্দ্রীয় মসজিদ", location: "মাইজদী, নোয়াখালী", thana: "নোয়াখালী সদর", district: "নোয়াখালী", type: "🐓 মুরগির বিরিয়ানি", typeIcon: "🐓", division: "চট্টগ্রাম", lat: 22.870, lng: 91.100, manual: false },
+            { name: "ঝালকাঠি কেন্দ্রীয় জামে মসজিদ", location: "ঝালকাঠি সদর, ঝালকাঠি", thana: "ঝালকাঠি সদর", district: "ঝালকাঠি", type: "🥣 নেই", typeIcon: "🥣", division: "বরিশাল", lat: 22.644, lng: 90.200, manual: false },
+            { name: "রামপট্টি বায়তুন নূর জামে মসজিদ", location: "রামপট্টি, বাবুগঞ্জ, বরিশাল", thana: "বাবুগঞ্জ", district: "বরিশাল", type: "🐄 গরুর বিরিয়ানি", typeIcon: "🐄", division: "বরিশাল", lat: 22.820, lng: 90.320, manual: false },
+            { name: "মৌলভীবাজার কেন্দ্রীয় মসজিদ", location: "মৌলভীবাজার সদর, মৌলভীবাজার", thana: "মৌলভীবাজার সদর", district: "মৌলভীবাজার", type: "🐐 খাসির বিরিয়ানি", typeIcon: "🐐", division: "সিলেট", lat: 24.482, lng: 91.773, manual: false },
+            { name: "হবিগঞ্জ বড় মসজিদ", location: "হবিগঞ্জ সদর, হবিগঞ্জ", thana: "হবিগঞ্জ সদর", district: "হবিগঞ্জ", type: "🐐 খাসির বিরিয়ানি", typeIcon: "🐐", division: "সিলেট", lat: 24.384, lng: 91.419, manual: false },
+            { name: "সুনামগঞ্জ কেন্দ্রীয় জামে মসজিদ", location: "সুনামগঞ্জ সদর, সুনামগঞ্জ", thana: "সুনামগঞ্জ সদর", district: "সুনামগঞ্জ", type: "🥣 নেই", typeIcon: "🥣", division: "সিলেট", lat: 25.071, lng: 91.402, manual: false },
+            { name: "বায়তুল মোকাররম জাতীয় মসজিদ", location: "পল্টন, ঢাকা", thana: "পল্টন", district: "ঢাকা", type: "🐓 মুরগির বিরিয়ানি", typeIcon: "🐓", division: "ঢাকা", lat: 23.730, lng: 90.412, manual: false },
+            { name: "সাত মসজিদ", location: "মিরপুর, ঢাকা", thana: "মিরপুর", district: "ঢাকা", type: "🐓 মুরগির বিরিয়ানি", typeIcon: "🐓", division: "ঢাকা", lat: 23.806, lng: 90.368, manual: false },
+            { name: "তারা মসজিদ", location: "আর্মানি টোল, পুরান ঢাকা, ঢাকা", thana: "পুরান ঢাকা", district: "ঢাকা", type: "🥣 নেই", typeIcon: "🥣", division: "ঢাকা", lat: 23.715, lng: 90.410, manual: false },
+            { name: "চকবাজার শাহী মসজিদ", location: "চকবাজার, পুরান ঢাকা, ঢাকা", thana: "পুরান ঢাকা", district: "ঢাকা", type: "🐄 গরুর বিরিয়ানি", typeIcon: "🐄", division: "ঢাকা", lat: 23.713, lng: 90.404, manual: false },
+            { name: "হোসেনী দালান", location: "বকশীবাজার, পুরান ঢাকা, ঢাকা", thana: "পুরান ঢাকা", district: "ঢাকা", type: "🐓 মুরগির বিরিয়ানি", typeIcon: "🐓", division: "ঢাকা", lat: 23.724, lng: 90.402, manual: false }
+        ];
+
+        // current filter state
+        let currentFilter = { type: 'all', value: 'all' };
+        let lastSearchTerm = '';
+        let userLat = null;
+        let userLng = null;
+        let map = null;
+        let mapInitialized = false;
+        let userMarker = null;
+        let mosqueMarkers = [];
+
+        // toggle add form
+        function toggleAddForm() {
+            const form = document.getElementById('addFormContainer');
+            if (form.style.display === 'block') {
+                form.style.display = 'none';
+            } else {
+                form.style.display = 'block';
+                // Clear form
+                document.getElementById('newName').value = '';
+                document.getElementById('newAddress').value = '';
+                document.getElementById('newDistrict').value = '';
+                document.getElementById('newThana').value = '';
+                document.getElementById('newLat').value = '';
+                document.getElementById('newLng').value = '';
+                document.getElementById('newDivision').value = 'ঢাকা';
+                document.getElementById('newType').value = '🐓 মুরগির বিরিয়ানি';
+            }
+        }
+
+        // get current location for form
+        function getCurrentLocationForForm() {
+            if (navigator.geolocation) {
+                showToast('লোকেশন নেওয়া হচ্ছে...');
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        document.getElementById('newLat').value = position.coords.latitude.toFixed(4);
+                        document.getElementById('newLng').value = position.coords.longitude.toFixed(4);
+                        showToast('লোকেশন সেট করা হয়েছে 🍛');
+                    },
+                    (error) => {
+                        showToast('লোকেশন পাওয়া যায়নি: ' + error.message);
+                    }
+                );
+            } else {
+                showToast('জিওলোকেশন সাপোর্ট করে না');
+            }
+        }
+
+        // add manual mosque
+        function addManualMosque() {
+            const name = document.getElementById('newName').value.trim();
+            const address = document.getElementById('newAddress').value.trim();
+            const district = document.getElementById('newDistrict').value.trim();
+            const thana = document.getElementById('newThana').value.trim();
+            const division = document.getElementById('newDivision').value;
+            const typeFull = document.getElementById('newType').value;
+            const lat = parseFloat(document.getElementById('newLat').value);
+            const lng = parseFloat(document.getElementById('newLng').value);
+            
+            // Validate
+            if (!name || !address || !district || !thana || isNaN(lat) || isNaN(lng)) {
+                showToast('সব তথ্য দিন এবং সঠিক লোকেশন দিন');
+                return;
+            }
+            
+            // Extract type icon
+            let typeIcon = '🐓';
+            if (typeFull.includes('🐄')) typeIcon = '🐄';
+            else if (typeFull.includes('🐐')) typeIcon = '🐐';
+            else if (typeFull.includes('🥣')) typeIcon = '🥣';
+            
+            // Create new mosque
+            const newMosque = {
+                name: name,
+                location: address,
+                thana: thana,
+                district: district,
+                type: typeFull,
+                typeIcon: typeIcon,
+                division: division,
+                lat: lat,
+                lng: lng,
+                manual: true,
+                donated: true
+            };
+            
+            mosqueData.push(newMosque);
+            
+            // Update map if active
+            if (mapInitialized) {
+                updateMosqueMarkers();
+            }
+            
+            // Apply filters and render
+            applyFilters();
+            
+            // Hide form
+            toggleAddForm();
+            
+            // Show success message
+            showToast('✅ নতুন স্থান যোগ করা হয়েছে: ' + name + ' 🍛');
+            
+            // Update district count
+            updateDistrictCount();
+        }
+
+        // update district count badge
+        function updateDistrictCount() {
+            const districts = [...new Set(mosqueData.map(m => m.district))];
+            const biryaniCount = mosqueData.filter(m => m.typeIcon !== '🥣').length;
+            document.getElementById('districtBadge').innerHTML = `${districts.length} জেলা · ${biryaniCount} বিরিয়ানি ▼`;
+        }
+
+        // render mosque list
+        function renderMosqueList(data) {
+            const container = document.getElementById('mosqueList');
+            container.innerHTML = '';
+            
+            let processedData = [...data];
+            if (userLat && userLng) {
+                processedData = processedData.map(item => {
+                    const distance = getDistance(userLat, userLng, item.lat, item.lng);
+                    return { ...item, distance: distance.toFixed(1) };
+                });
+                processedData.sort((a, b) => a.distance - b.distance);
+            }
+
+            processedData.forEach(item => {
+                const typeHtml = item.typeIcon === '🥣' 
+                    ? `<span class="none-biryani">🥣 নেই</span>`
+                    : `<span class="type-icon">${item.typeIcon}</span> ${item.type.replace(item.typeIcon, '').trim()}`;
+                
+                const distanceHtml = item.distance ? `<span class="distance-badge">${item.distance} কিমি</span>` : '';
+                const donationBadge = item.manual ? '<span class="donation-badge">🍛 দান</span>' : '';
+                
+                const div = document.createElement('div');
+                div.className = 'mosque-item';
+                div.setAttribute('data-lat', item.lat);
+                div.setAttribute('data-lng', item.lng);
+                div.setAttribute('data-name', item.name);
+                div.onclick = () => flyToMosque(item.lat, item.lng, item.name);
+                div.innerHTML = `
+                    <div class="mosque-icon">🍛</div>
+                    <div class="mosque-details">
+                        <div class="mosque-name">
+                            ${item.name} ${distanceHtml} ${donationBadge}
+                            <span style="font-size:1.2rem; margin-left:0.2rem;">🍛</span>
+                        </div>
+                        <div class="mosque-location">
+                            <i class="fas fa-map-pin"></i> 
+                            <span>${item.location}</span>
+                            <span style="font-size:0.9rem; color:#b45f2b; margin-left:0.2rem;">📍</span>
+                        </div>
+                        <div class="biryani-type">${typeHtml}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            
+            updateDistrictCount();
+        }
+
+        // distance calculation
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // toggle live map
+        function toggleLiveMap() {
+            const mapContainer = document.getElementById('mapContainer');
+            if (mapContainer.style.display === 'block') {
+                mapContainer.style.display = 'none';
+                showToast('ম্যাপ বন্ধ করা হয়েছে');
+            } else {
+                mapContainer.style.display = 'block';
+                showToast('আপনার অবস্থান চিহ্নিত করা হচ্ছে...');
+                initMap();
+            }
+        }
+
+        // initialize map
+        function initMap() {
+            if (!mapInitialized) {
+                map = L.map('map').setView([23.7, 90.35], 7);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+                mapInitialized = true;
+            }
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLat = position.coords.latitude;
+                        userLng = position.coords.longitude;
+                        
+                        const exactUserLoc = `অক্ষাংশ: ${userLat.toFixed(4)}, দ্রাঘিমা: ${userLng.toFixed(4)}`;
+                        
+                        document.getElementById('locationStatus').innerHTML = 
+                            `<i class="fas fa-check-circle" style="color:#2e7d32;"></i> আপনার অবস্থান: ${exactUserLoc} 🍛`;
+                        
+                        map.setView([userLat, userLng], 12);
+                        
+                        if (userMarker) map.removeLayer(userMarker);
+                        
+                        const userIcon = L.divIcon({
+                            className: 'user-marker',
+                            html: '📍 🍛',
+                            iconSize: [30, 30]
+                        });
+                        
+                        userMarker = L.marker([userLat, userLng], { icon: userIcon })
+                            .addTo(map)
+                            .bindPopup('আপনার অবস্থান 🍛')
+                            .openPopup();
+                        
+                        updateMosqueMarkers();
+                        applyFilters();
+                    },
+                    (error) => {
+                        document.getElementById('locationStatus').innerHTML = 
+                            '<i class="fas fa-exclamation-triangle" style="color:#e03a3a;"></i> অবস্থান পাওয়া যায়নি: ' + error.message + ' 🍛';
+                        showToast('লোকেশন অ্যাক্সেস দেওয়া হয়নি');
+                    }
+                );
+            } else {
+                document.getElementById('locationStatus').innerHTML = 
+                    '<i class="fas fa-exclamation-triangle" style="color:#e03a3a;"></i> জিওলোকেশন সাপোর্ট করে না 🍛';
+            }
+        }
+
+        // update mosque markers
+        function updateMosqueMarkers() {
+            if (!map) return;
+            
+            mosqueMarkers.forEach(m => map.removeLayer(m));
+            mosqueMarkers = [];
+            
+            mosqueData.forEach(m => {
+                let biryaniEmoji = '🍛';
+                if (m.typeIcon === '🐓') biryaniEmoji = '🐓🍛';
+                else if (m.typeIcon === '🐄') biryaniEmoji = '🐄🍛';
+                else if (m.typeIcon === '🐐') biryaniEmoji = '🐐🍛';
+                else if (m.typeIcon === '🥣') biryaniEmoji = '🥣';
+                
+                if (m.manual) biryaniEmoji = '➕' + biryaniEmoji;
+                
+                const mosqueIcon = L.divIcon({
+                    className: 'biryani-marker',
+                    html: biryaniEmoji,
+                    iconSize: [30, 30]
+                });
+                
+                const marker = L.marker([m.lat, m.lng], { icon: mosqueIcon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <b>${m.name}</b><br>
+                        📍 ${m.location}<br>
+                        🍛 ${m.type}<br>
+                        ${m.manual ? '<span style="color:#b45f2b;">➕ ম্যানুয়ালি যোগ করা</span>' : ''}
+                    `);
+                mosqueMarkers.push(marker);
+            });
+        }
+
+        // fly to mosque
+        function flyToMosque(lat, lng, name) {
+            if (map) {
+                map.flyTo([lat, lng], 17);
+                showToast(`🍛 ${name} 🍛`);
+            } else {
+                showToast('প্রথমে লাইভ ম্যাপ চালু করুন 🗺️');
+            }
+        }
+
+        // filter functions
+        function filterMosques() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            lastSearchTerm = term;
+            applyFilters();
+        }
+
+        function filterByDivision(division) {
+            if (division === 'all') {
+                currentFilter = { type: 'all', value: 'all' };
+            } else {
+                currentFilter = { type: 'division', value: division };
+            }
+            applyFilters();
+            showToast(`${division} বিভাগ দেখানো হচ্ছে 🍛`);
+        }
+
+        function filterByBiryaniType() {
+            currentFilter = { type: 'biryani', value: 'biryani' };
+            applyFilters();
+            showToast('সব বিরিয়ানি দেখানো হচ্ছে 🍛');
+        }
+
+        function filterByMeat(meatIcon) {
+            let meatName = '';
+            if (meatIcon === '🐓') meatName = 'মুরগির';
+            else if (meatIcon === '🐄') meatName = 'গরুর';
+            else if (meatIcon === '🐐') meatName = 'খাসির';
+            else if (meatIcon === '🥣') meatName = 'নেই';
+            
+            currentFilter = { type: 'meat', value: meatIcon };
+            applyFilters();
+            showToast(`${meatName} বিরিয়ানি দেখানো হচ্ছে 🍛`);
+        }
+
+        function applyFilters() {
+            let filtered = mosqueData;
+
+            if (lastSearchTerm) {
+                filtered = filtered.filter(item => 
+                    item.name.toLowerCase().includes(lastSearchTerm) || 
+                    item.location.toLowerCase().includes(lastSearchTerm) ||
+                    item.thana.toLowerCase().includes(lastSearchTerm) ||
+                    item.district.toLowerCase().includes(lastSearchTerm)
+                );
+            }
+
+            if (currentFilter.type === 'division' && currentFilter.value !== 'all') {
+                filtered = filtered.filter(item => item.division === currentFilter.value);
+            } else if (currentFilter.type === 'biryani') {
+                filtered = filtered.filter(item => item.typeIcon !== '🥣');
+            } else if (currentFilter.type === 'meat') {
+                filtered = filtered.filter(item => item.typeIcon === currentFilter.value);
+            }
+
+            renderMosqueList(filtered);
+        }
+
+        function setActiveFilter(element) {
+            document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function removeLastMosque() {
+            if (mosqueData.length > 0) {
+                mosqueData.pop();
+                if (mapInitialized) updateMosqueMarkers();
+                applyFilters();
+                showToast('➖ শেষ মসজিদ সরানো হয়েছে 🍛');
+            } else {
+                showToast('কোনো মসজিদ নেই 🥣');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 1500);
+        }
+
+        // initial render
+        renderMosqueList(mosqueData);
+
+        // expose functions
+        window.filterByMeat = filterByMeat;
+        window.addManualMosque = addManualMosque;
+        window.removeLastMosque = removeLastMosque;
+        window.showToast = showToast;
+        window.filterMosques = filterMosques;
+        window.filterByDivision = filterByDivision;
+        window.filterByBiryaniType = filterByBiryaniType;
+        window.setActiveFilter = setActiveFilter;
+        window.toggleLiveMap = toggleLiveMap;
+        window.toggleAddForm = toggleAddForm;
+        window.getCurrentLocationForForm = getCurrentLocationForForm;
+        window.flyToMosque = flyToMosque;
+    </script>
+</body>
+</html>
