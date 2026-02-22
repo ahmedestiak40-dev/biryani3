@@ -612,6 +612,11 @@
                 <span onclick="removeLastMosque()">−</span>
                 <span onclick="showToast('🍛 বিরিয়ানি আইকন')">🍛</span>
             </div>
+          <br>
+            <Marquee behavior="scroll" direction="left" scrollamount="5">
+                <span style="color: #b45f2b; font-weight: bold;">বিরিয়ানি দিবে - আপনার প্রিয় মসজিদের জন্য সহজেই খুঁজুন!</span>
+            </Marquee>
+
             <div class="header-title">
                 <h1 onclick="showToast('বিরিয়ানি দিবে')">বিরিয়ানি দিবে</h1>
             </div>
@@ -691,14 +696,8 @@
                                 <option value="🥣 নেই">🥣 নেই</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>অক্ষাংশ (ল্যাট)</label>
-                            <input type="number" step="0.0001" id="newLat" placeholder="যেমন: 23.780">
-                        </div>
-                        <div class="form-group">
-                            <label>দ্রাঘিমা (লং)</label>
-                            <input type="number" step="0.0001" id="newLng" placeholder="যেমন: 90.380">
-                        </div>
+                         
+                         
                     </div>
                     <div style="text-align: center; margin: 1rem 0;">
                         <button class="btn btn-biryani" onclick="getCurrentLocationForForm()">
@@ -759,9 +758,12 @@
             <div class="footer-bd" onclick="showToast('🇧🇩 বাংলাদেশ')">
                 🇧🇩
             </div>
-			<br>
-			div style="color: green;">
+
+         <br>
+            <div style="color: green;">
+                <b>
                 Made by Estiak Ahmed CSE Rangpur
+            </b>
             </div>
         </div>
     </div>
